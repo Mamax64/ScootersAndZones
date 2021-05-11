@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ScootAPI.Models;
+using ScootAPI.Models.Messaging;
 using ScootAPI.Services;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,12 @@ namespace ScootAPI.Controllers
     {
         private readonly IScootersService _scootersService;
 
-        public ScootersController(IScootersService scootersService)
+        private readonly IAmqpService _amqpService;
+
+        public ScootersController(IScootersService scootersService, IAmqpService amqpService)
         {
             _scootersService = scootersService;
+            _amqpService = amqpService;
         }
 
 
@@ -41,6 +45,8 @@ namespace ScootAPI.Controllers
                 {
                     scooter.IdScooter = id;
                     _scootersService.UpdateScooter(scooter);
+                    Message msg = new("Scooter", id, "Update");
+                    _amqpService.SendMessage(msg);
                     return Ok();
                 }
                 return BadRequest();
@@ -51,9 +57,6 @@ namespace ScootAPI.Controllers
             }
         }
 
-
-        //////// NON OFFICIEL 
-
         [HttpPost]
         public IActionResult Create([FromBody] Scooter scooter)
         {
@@ -61,9 +64,11 @@ namespace ScootAPI.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    Guid obj = Guid.NewGuid();
-                    scooter.IdScooter = obj.ToString();
+                    string id = Guid.NewGuid().ToString();
+                    scooter.IdScooter = id;
                     _scootersService.AddScooter(scooter);
+                    Message msg = new("Scooter", id, "Create");
+                    _amqpService.SendMessage(msg);
                     return Ok();
                 }
                 return BadRequest();
@@ -72,6 +77,17 @@ namespace ScootAPI.Controllers
             {
                 return BadRequest(e);
             }
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(string id)
+        {
+            Scooter scooter = _scootersService.GetScooter(id);
+            if (scooter == null) return NotFound();
+            _scootersService.DeleteScooter(id);
+            Message msg = new("Scooter", id, "Delete");
+            _amqpService.SendMessage(msg);
+            return Ok();
         }
 
         [HttpGet]

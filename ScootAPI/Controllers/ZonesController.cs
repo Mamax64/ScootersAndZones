@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ScootAPI.Models;
+using ScootAPI.Models.Messaging;
 using ScootAPI.Repositories;
 using ScootAPI.Services;
 using System;
@@ -13,14 +14,16 @@ namespace ScootAPI.Controllers
     public class ZonesController : ControllerBase
     {
         private readonly IZonesService _zoneService;
+        private readonly IAmqpService _amqpService;
 
-        public ZonesController(IZonesService zonesService)
+        public ZonesController(IZonesService zonesService, IAmqpService amqpService)
         {
             _zoneService = zonesService;
+            _amqpService = amqpService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Zone>>> Get()
+        public ActionResult<IEnumerable<Zone>> Get()
         {
             try
             {
@@ -33,7 +36,7 @@ namespace ScootAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Zone>> Get(string id)
+        public ActionResult<Zone> Get(string id)
         {
             try
             {
@@ -50,9 +53,11 @@ namespace ScootAPI.Controllers
         {
             if (ModelState.IsValid)
             {
-                Guid obj = Guid.NewGuid();
-                zone.IdZone = obj.ToString();
+                string id = Guid.NewGuid().ToString();
+                zone.IdZone= id;
                 _zoneService.AddZone(zone);
+                Message msg = new("ScootZone", id, "Create");
+                _amqpService.SendMessage(msg);
                 return Ok();
             }
             return BadRequest();
@@ -65,13 +70,15 @@ namespace ScootAPI.Controllers
             {
                 zone.IdZone = id;
                 _zoneService.UpdateZone(zone);
+                Message msg = new("ScootZone", id, "Update");
+                _amqpService.SendMessage(msg);
                 return Ok();
             }
             return BadRequest();
         }
 
         [Route("{id}/scooters")]
-        public async Task<ActionResult<IEnumerable<Scooter>>> GetByZoneId(string id)
+        public ActionResult<IEnumerable<Scooter>> GetByZoneId(string id)
         {
             try
             {
@@ -81,6 +88,17 @@ namespace ScootAPI.Controllers
             {
                 return BadRequest(e);
             }
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(string id)
+        {
+            Zone zone = _zoneService.GetZone(id);
+            if (zone == null) return NotFound();
+            _zoneService.DeleteZone(id);
+            Message msg = new("ScootZone", id, "Delete");
+            _amqpService.SendMessage(msg);
+            return Ok();
         }
     }
 }

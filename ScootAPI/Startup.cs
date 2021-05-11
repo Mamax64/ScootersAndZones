@@ -35,6 +35,8 @@ namespace ScootAPI
             services.AddScoped<IScootersRepository, ScootersRepository>();
             services.AddScoped<IZonesRepository, ZonesRepository>();
             services.AddScoped<IZonesService, ZonesService>();
+            services.AddScoped<IScootersService, ScootersService>();
+            services.AddScoped<IAmqpService, AmqpService>();
 
             services.AddSwaggerGen(c =>
             {

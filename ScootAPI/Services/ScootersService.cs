@@ -1,15 +1,18 @@
 ﻿using ScootAPI.Models;
 using ScootAPI.Repositories;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ScootAPI.Services
 {
     public class ScootersService : IScootersService
     {
         private readonly IScootersRepository _scooterRepository;
-        public ScootersService(IScootersRepository scooterRepository)
+        private readonly IAmqpService _amqpService;
+        public ScootersService(IScootersRepository scooterRepository, IAmqpService amqpService)
         {
             _scooterRepository = scooterRepository;
+            _amqpService = amqpService;
         }
 
         public Scooter GetScooter(string id)

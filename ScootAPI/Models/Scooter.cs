@@ -1,18 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-
-#nullable disable
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ScootAPI.Models
 {
-    public partial class Scooter
+    public class Scooter
     {
-        public string Location { get; set; }
+        [Column(TypeName = "jsonb")]
+        public Customer Location { get; set; }
         public bool IsDisabled { get; set; }
         public string Name { get; set; }
         public string IdZone { get; set; }
         public string IdScooter { get; set; }
 
-        public virtual Zone IdZoneNavigation { get; set; }
+    }
+
+    public class Customer
+    {
+        public string Longitude;
+        public string Latitude;
     }
 }
