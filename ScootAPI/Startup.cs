@@ -42,6 +42,13 @@ namespace ScootAPI
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ScootAPI", Version = "v1" });
             });
+
+            services.AddSession();
+
+            services.AddStackExchangeRedisCache(options => {
+                options.Configuration = Configuration.GetSection("Redis")["ConnectionString"];
+                options.InstanceName = "ScootersAPIRedis";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

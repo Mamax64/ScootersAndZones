@@ -8,11 +8,9 @@ namespace ScootAPI.Services
     public class ScootersService : IScootersService
     {
         private readonly IScootersRepository _scooterRepository;
-        private readonly IAmqpService _amqpService;
-        public ScootersService(IScootersRepository scooterRepository, IAmqpService amqpService)
+        public ScootersService(IScootersRepository scooterRepository)
         {
             _scooterRepository = scooterRepository;
-            _amqpService = amqpService;
         }
 
         public Scooter GetScooter(string id)

@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 using ScootAPI.Models;
 using ScootAPI.Models.Messaging;
 using ScootAPI.Services;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ScootAPI.Controllers
@@ -16,10 +19,13 @@ namespace ScootAPI.Controllers
 
         private readonly IAmqpService _amqpService;
 
-        public ScootersController(IScootersService scootersService, IAmqpService amqpService)
+        private readonly IDistributedCache _distributedCache;
+
+        public ScootersController(IScootersService scootersService, IAmqpService amqpService, IDistributedCache distributedCache)
         {
             _scootersService = scootersService;
             _amqpService = amqpService;
+            _distributedCache = distributedCache;
         }
 
 
@@ -28,7 +34,21 @@ namespace ScootAPI.Controllers
         {
             try
             {
-                return _scootersService.GetScooter(id);
+                string scooterKey = "Scooter/" + id;
+                var serializedScooter = await _distributedCache.GetStringAsync(scooterKey);
+
+                if (serializedScooter != null)
+                {
+                    var deserializedScooter = JsonConvert.DeserializeObject<Scooter>(serializedScooter);
+                    return (Scooter) deserializedScooter;
+                }
+                Scooter scooter = _scootersService.GetScooter(id);
+
+                if (scooter == null) return NotFound();
+
+                var scooterJson = JsonConvert.SerializeObject(scooter);
+                await _distributedCache.SetStringAsync(scooterKey, scooterJson);
+                return scooter;
             }
             catch (Exception e)
             {
@@ -37,7 +57,7 @@ namespace ScootAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Edit(string id, [FromBody] Scooter scooter)
+        public async Task<IActionResult> EditAsync(string id, [FromBody] Scooter scooter)
         {
             try
             {
@@ -45,6 +65,9 @@ namespace ScootAPI.Controllers
                 {
                     scooter.IdScooter = id;
                     _scootersService.UpdateScooter(scooter);
+
+                    await _distributedCache.SetStringAsync("Scooter/" + id, JsonConvert.SerializeObject(scooter));
+
                     Message msg = new("Scooter", id, "Update");
                     _amqpService.SendMessage(msg);
                     return Ok();
@@ -58,7 +81,7 @@ namespace ScootAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Scooter scooter)
+        public async Task<IActionResult> Create([FromBody] Scooter scooter)
         {
             try
             {
@@ -66,7 +89,10 @@ namespace ScootAPI.Controllers
                 {
                     string id = Guid.NewGuid().ToString();
                     scooter.IdScooter = id;
+
                     _scootersService.AddScooter(scooter);
+                    await _distributedCache.SetStringAsync("Scooter/" + id, JsonConvert.SerializeObject(scooter));
+
                     Message msg = new("Scooter", id, "Create");
                     _amqpService.SendMessage(msg);
                     return Ok();
@@ -80,14 +106,23 @@ namespace ScootAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            Scooter scooter = _scootersService.GetScooter(id);
-            if (scooter == null) return NotFound();
-            _scootersService.DeleteScooter(id);
-            Message msg = new("Scooter", id, "Delete");
-            _amqpService.SendMessage(msg);
-            return Ok();
+            try
+            {
+                Scooter scooter = _scootersService.GetScooter(id);
+                if (scooter == null) return NotFound();
+                _scootersService.DeleteScooter(id);
+                await _distributedCache.RemoveAsync("Scooter" + id);
+
+                Message msg = new("Scooter", id, "Delete");
+                _amqpService.SendMessage(msg);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
         }
 
         [HttpGet]
