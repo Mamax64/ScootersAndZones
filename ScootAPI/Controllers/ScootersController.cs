@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MessagingLib;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using ScootAPI.Models;
-using ScootAPI.Models.Messaging;
 using ScootAPI.Services;
 using System;
 using System.Collections.Generic;
@@ -16,9 +16,7 @@ namespace ScootAPI.Controllers
     public class ScootersController : ControllerBase
     {
         private readonly IScootersService _scootersService;
-
         private readonly IAmqpService _amqpService;
-
         private readonly IDistributedCache _distributedCache;
 
         public ScootersController(IScootersService scootersService, IAmqpService amqpService, IDistributedCache distributedCache)
@@ -39,15 +37,15 @@ namespace ScootAPI.Controllers
 
                 if (serializedScooter != null)
                 {
-                    var deserializedScooter = JsonConvert.DeserializeObject<Scooter>(serializedScooter);
-                    return (Scooter) deserializedScooter;
+                    return JsonConvert.DeserializeObject<Scooter>(serializedScooter);
                 }
+
                 Scooter scooter = _scootersService.GetScooter(id);
 
                 if (scooter == null) return NotFound();
 
-                var scooterJson = JsonConvert.SerializeObject(scooter);
-                await _distributedCache.SetStringAsync(scooterKey, scooterJson);
+                await _distributedCache.SetStringAsync(scooterKey, JsonConvert.SerializeObject(scooter));
+
                 return scooter;
             }
             catch (Exception e)
@@ -68,7 +66,7 @@ namespace ScootAPI.Controllers
 
                     await _distributedCache.SetStringAsync("Scooter/" + id, JsonConvert.SerializeObject(scooter));
 
-                    Message msg = new("Scooter", id, "Update");
+                    MessageEntity msg = new("Scooter", id, "Update");
                     _amqpService.SendMessage(msg);
                     return Ok();
                 }
@@ -91,10 +89,11 @@ namespace ScootAPI.Controllers
                     scooter.IdScooter = id;
 
                     _scootersService.AddScooter(scooter);
+
                     await _distributedCache.SetStringAsync("Scooter/" + id, JsonConvert.SerializeObject(scooter));
 
-                    Message msg = new("Scooter", id, "Create");
-                    _amqpService.SendMessage(msg);
+                    _amqpService.SendMessage(new MessageEntity("Scooter", id, "Create"));
+
                     return Ok();
                 }
                 return BadRequest();
@@ -115,7 +114,7 @@ namespace ScootAPI.Controllers
                 _scootersService.DeleteScooter(id);
                 await _distributedCache.RemoveAsync("Scooter" + id);
 
-                Message msg = new("Scooter", id, "Delete");
+                MessageEntity msg = new("Scooter", id, "Delete");
                 _amqpService.SendMessage(msg);
                 return Ok();
             }

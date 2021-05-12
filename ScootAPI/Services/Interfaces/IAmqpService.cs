@@ -1,9 +1,10 @@
-﻿using ScootAPI.Models.Messaging;
+﻿
+using MessagingLib;
 
 namespace ScootAPI.Services
 {
     public interface IAmqpService
     {
-        void SendMessage(Message message);
+        void SendMessage(MessageEntity message);
     }
 }

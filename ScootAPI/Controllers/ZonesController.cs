@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MessagingLib;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 using ScootAPI.Models;
-using ScootAPI.Models.Messaging;
 using ScootAPI.Repositories;
 using ScootAPI.Services;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,11 +18,13 @@ namespace ScootAPI.Controllers
     {
         private readonly IZonesService _zoneService;
         private readonly IAmqpService _amqpService;
+        private readonly IDistributedCache _distributedCache;
 
-        public ZonesController(IZonesService zonesService, IAmqpService amqpService)
+        public ZonesController(IZonesService zonesService, IAmqpService amqpService, IDistributedCache distributedCache)
         {
             _zoneService = zonesService;
             _amqpService = amqpService;
+            _distributedCache = distributedCache;
         }
 
         [HttpGet]
@@ -36,11 +41,25 @@ namespace ScootAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Zone> Get(string id)
+        public async Task<ActionResult<Zone>> Get(string id)
         {
             try
             {
-                return _zoneService.GetZone(id);
+                string zoneKey = "Zone/" + id;
+                var serializedZone = await _distributedCache.GetStringAsync(zoneKey);
+
+                if (serializedZone != null)
+                {
+                    return JsonConvert.DeserializeObject<Zone>(serializedZone);
+                }
+
+                Zone zone = _zoneService.GetZone(id);
+
+                if (zone == null) return NotFound();
+
+                await _distributedCache.SetStringAsync(zoneKey, JsonConvert.SerializeObject(zone));
+
+                return zone;
             }
             catch (Exception e)
             {
@@ -49,32 +68,53 @@ namespace ScootAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Zone zone)
+        public async Task<IActionResult> Create([FromBody] Zone zone)
         {
-            if (ModelState.IsValid)
+            try
             {
-                string id = Guid.NewGuid().ToString();
-                zone.IdZone= id;
-                _zoneService.AddZone(zone);
-                Message msg = new("ScootZone", id, "Create");
-                _amqpService.SendMessage(msg);
-                return Ok();
+                if (ModelState.IsValid)
+                {
+                    string id = Guid.NewGuid().ToString();
+                    zone.IdZone = id;
+
+                    _zoneService.AddZone(zone);
+
+                    await _distributedCache.SetStringAsync("Zone/" + id, JsonConvert.SerializeObject(zone));
+
+                    _amqpService.SendMessage(new MessageEntity("ScootZone", id, "Create"));
+
+                    return Ok();
+                }
+                return BadRequest();
             }
-            return BadRequest();
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
         }
 
         [HttpPut("{id}")]
-        public IActionResult Edit(string id, [FromBody] Zone zone)
+        public async Task<IActionResult> EditAsync(string id, [FromBody] Zone zone)
         {
-            if (ModelState.IsValid)
+            try
             {
-                zone.IdZone = id;
-                _zoneService.UpdateZone(zone);
-                Message msg = new("ScootZone", id, "Update");
-                _amqpService.SendMessage(msg);
-                return Ok();
+                if (ModelState.IsValid)
+                {
+                    zone.IdZone = id;
+                    _zoneService.UpdateZone(zone);
+
+                    await _distributedCache.SetStringAsync("Zone/" + id, JsonConvert.SerializeObject(zone));
+                    _distributedCache.
+                    MessageEntity msg = new("ScootZone", id, "Update");
+                    _amqpService.SendMessage(msg);
+                    return Ok();
+                }
+                return BadRequest();
             }
-            return BadRequest();
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
         }
 
         [Route("{id}/scooters")]
@@ -96,7 +136,7 @@ namespace ScootAPI.Controllers
             Zone zone = _zoneService.GetZone(id);
             if (zone == null) return NotFound();
             _zoneService.DeleteZone(id);
-            Message msg = new("ScootZone", id, "Delete");
+            MessageEntity msg = new("ScootZone", id, "Delete");
             _amqpService.SendMessage(msg);
             return Ok();
         }

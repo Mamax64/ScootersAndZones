@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using MessagingLib;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
-using ScootAPI.Models.Messaging;
 using System;
 using System.Text;
 
@@ -15,7 +15,7 @@ namespace ScootAPI.Services
             CreateConnection();
         }
 
-        public void SendMessage(Message message)
+        public void SendMessage(MessageEntity message)
         {
             if(ConnectionExists())
             {

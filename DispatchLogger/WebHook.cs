@@ -1,12 +1,8 @@
-﻿using Newtonsoft.Json;
-using ScootAPI.Models.Messaging;
+﻿using MessagingLib;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DispatchLogger
 {
@@ -14,7 +10,7 @@ namespace DispatchLogger
     {
         private const string token = "https://discord.com/api/webhooks/841680482332704848/X0baJKyK65u19DLfvqfF9brwvDfsDLWY9CE-NqwoJl8onMJAjs2I1PgDAJB4WYmqUi4O";
 
-        public static void WriteMessage(Message msg)
+        public static void WriteMessage(MessageEntity msg)
         {
             WebRequest wr = (HttpWebRequest)WebRequest.Create(token);
 
