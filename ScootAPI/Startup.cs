@@ -1,3 +1,4 @@
+using Cache;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,9 @@ using Microsoft.OpenApi.Models;
 using ScootAPI.Models;
 using ScootAPI.Repositories;
 using ScootAPI.Services;
+using StackExchange.Redis.Extensions.Core.Abstractions;
+using StackExchange.Redis.Extensions.Core.Configuration;
+using StackExchange.Redis.Extensions.Core.Implementations;
 
 namespace ScootAPI
 {
@@ -37,6 +41,7 @@ namespace ScootAPI
             services.AddScoped<IZonesService, ZonesService>();
             services.AddScoped<IScootersService, ScootersService>();
             services.AddScoped<IAmqpService, AmqpService>();
+            services.AddScoped<IRedisService, RedisService>();
 
             services.AddSwaggerGen(c =>
             {
@@ -45,7 +50,13 @@ namespace ScootAPI
 
             services.AddSession();
 
-            services.AddStackExchangeRedisCache(options => {
+/*            var redisConfiguration = Configuration.GetSection("Redis").Get<RedisConfiguration>();
+            services.AddSingleton(redisConfiguration);*//*
+            services.AddSingleton<IRedisCacheClient, RedisCacheClient>();
+            services.AddSingleton<IRedisCacheConnectionPoolManager, RedisCacheConnectionPoolManager>();*/
+        
+
+        services.AddStackExchangeRedisCache(options => {
                 options.Configuration = Configuration.GetSection("Redis")["ConnectionString"];
                 options.InstanceName = "ScootersAPIRedis";
             });

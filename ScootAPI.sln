@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScootAPI", "ScootAPI\ScootA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DispatchLogger", "DispatchLogger\DispatchLogger.csproj", "{6CDC79AD-8265-492A-AF87-784EF9805265}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagingLib", "MessagingLib\MessagingLib.csproj", "{B6664DDC-BD5D-44AE-B14D-2E790948CEA2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessagingLib", "MessagingLib\MessagingLib.csproj", "{B6664DDC-BD5D-44AE-B14D-2E790948CEA2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisLib", "RedisLib\RedisLib.csproj", "{9F5FD310-4E0D-4787-9AFC-10CD0E2ACEC3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cache", "Cache\Cache.csproj", "{4FD8167A-EAD1-4A14-A10F-B50C597CCC2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{B6664DDC-BD5D-44AE-B14D-2E790948CEA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6664DDC-BD5D-44AE-B14D-2E790948CEA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6664DDC-BD5D-44AE-B14D-2E790948CEA2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9F5FD310-4E0D-4787-9AFC-10CD0E2ACEC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F5FD310-4E0D-4787-9AFC-10CD0E2ACEC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F5FD310-4E0D-4787-9AFC-10CD0E2ACEC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F5FD310-4E0D-4787-9AFC-10CD0E2ACEC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FD8167A-EAD1-4A14-A10F-B50C597CCC2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FD8167A-EAD1-4A14-A10F-B50C597CCC2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FD8167A-EAD1-4A14-A10F-B50C597CCC2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FD8167A-EAD1-4A14-A10F-B50C597CCC2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
