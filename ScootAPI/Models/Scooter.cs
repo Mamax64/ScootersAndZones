@@ -15,7 +15,7 @@ namespace ScootAPI.Models
 
     public class Customer
     {
-        public string Longitude;
-        public string Latitude;
-    }
+        public string Longitude { get; set; }
+        public string Latitude { get; set; }
+}
 }

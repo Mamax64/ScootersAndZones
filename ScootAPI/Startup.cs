@@ -9,9 +9,6 @@ using Microsoft.OpenApi.Models;
 using ScootAPI.Models;
 using ScootAPI.Repositories;
 using ScootAPI.Services;
-using StackExchange.Redis.Extensions.Core.Abstractions;
-using StackExchange.Redis.Extensions.Core.Configuration;
-using StackExchange.Redis.Extensions.Core.Implementations;
 
 namespace ScootAPI
 {
@@ -24,7 +21,6 @@ namespace ScootAPI
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
@@ -49,20 +45,8 @@ namespace ScootAPI
             });
 
             services.AddSession();
-
-/*            var redisConfiguration = Configuration.GetSection("Redis").Get<RedisConfiguration>();
-            services.AddSingleton(redisConfiguration);*//*
-            services.AddSingleton<IRedisCacheClient, RedisCacheClient>();
-            services.AddSingleton<IRedisCacheConnectionPoolManager, RedisCacheConnectionPoolManager>();*/
-        
-
-        services.AddStackExchangeRedisCache(options => {
-                options.Configuration = Configuration.GetSection("Redis")["ConnectionString"];
-                options.InstanceName = "ScootersAPIRedis";
-            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

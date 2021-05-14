@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
@@ -51,12 +49,6 @@ namespace ScootAPI.Models
                     .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnName("name");
-
-/*                entity.HasOne(d => d.IdZoneNavigation)
-                    .WithMany(p => p.Scooters)
-                    .HasForeignKey(d => d.IdZone)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("scooter-zone_fk");*/
             });
 
             modelBuilder.Entity<Zone>(entity =>

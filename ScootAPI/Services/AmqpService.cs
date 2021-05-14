@@ -1,6 +1,8 @@
 ﻿using MessagingLib;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
+using ServiceStack;
 using System;
 using System.Text;
 
@@ -9,9 +11,11 @@ namespace ScootAPI.Services
     public class AmqpService : IAmqpService
     {
         private IConnection _connection;
+        private readonly IConfiguration _configuration;
 
-        public AmqpService()
+        public AmqpService(IConfiguration configuration)
         {
+            _configuration = configuration;
             CreateConnection();
         }
 
@@ -40,10 +44,10 @@ namespace ScootAPI.Services
             {
                 var factory = new ConnectionFactory
                 {
-                    HostName = "localhost",
-                    Port = 5672,
-                    UserName = "guest",
-                    Password = "guest"
+                    HostName = _configuration["Amqp:HostName"],
+                    Port = _configuration["Amqp:Port"].ToInt(),
+                    UserName = _configuration["Amqp:UserName"],
+                    Password = _configuration["Amqp:Password"]
                 };
                 _connection = factory.CreateConnection();
             }

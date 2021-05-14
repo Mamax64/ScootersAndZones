@@ -1,5 +1,4 @@
-﻿
-using MessagingLib;
+﻿using MessagingLib;
 
 namespace ScootAPI.Services
 {

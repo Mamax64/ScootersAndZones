@@ -1,15 +1,10 @@
 ﻿using MessagingLib;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json;
 using ScootAPI.Models;
 using ScootAPI.Services;
-using StackExchange.Redis.Extensions.Core.Abstractions;
-using ScootAPI.Extentions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using StackExchange.Redis;
 using Cache;
 
 namespace ScootAPI.Controllers

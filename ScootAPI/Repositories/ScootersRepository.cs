@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using ScootAPI.Models;
 using System.Collections.Generic;
 using System.Linq;

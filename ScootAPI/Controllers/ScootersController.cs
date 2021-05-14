@@ -111,7 +111,7 @@ namespace ScootAPI.Controllers
                 Scooter scooter = await _scootersService.GetScooter(id);
                 if (scooter == null) return NotFound();
 
-                _scootersService.DeleteScooter(id);
+                await _scootersService.DeleteScooter(id);
                 _redisService.Delete(KEY_PREFIX + id);
 
                 MessageEntity msg = new("Scooter", id, "Delete");
