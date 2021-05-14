@@ -41,12 +41,5 @@ namespace Cache
             
             return client.GetKeysByPattern(pattern).ToList();
         }
-
-        public List<string> GetTypedClient()
-        {
-            using IRedisClient client = new RedisClient(_redisConfiguration);
-
-            return client.GetAllKeys();
-        }
     }
 }
