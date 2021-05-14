@@ -1,18 +1,19 @@
 ﻿using ScootAPI.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ScootAPI.Repositories
 {
     public interface IScootersRepository
     {
-        Scooter GetScooter(string id);
+        Task<Scooter> GetScooter(string id);
 
-        void UpdateScooter(Scooter scooter);
+        Task UpdateScooter(Scooter scooter);
 
-        void DeleteScooter(string id);
+        Task DeleteScooterAsync(string id);
 
-        void AddScooter(Scooter scooter);
+        Task AddScooterAsync(Scooter scooter);
 
-        List<Scooter> GetScooters();
+        Task<List<Scooter>> GetScooters();
     }
 }

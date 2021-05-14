@@ -1,6 +1,8 @@
-﻿using ScootAPI.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using ScootAPI.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ScootAPI.Repositories
 {
@@ -13,33 +15,33 @@ namespace ScootAPI.Repositories
             _context = context;
         }
 
-        public void AddZone(Zone zone)
+        public async Task AddZone(Zone zone)
         {
             _context.Zones.Add(zone);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void UpdateZone(Zone zone)
+        public async Task UpdateZone(Zone zone)
         {
             _context.Zones.Update(zone);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteZone(string id)
+        public async Task DeleteZone(string id)
         {
             var entity = _context.Zones.FirstOrDefault(t => t.IdZone == id);
             _context.Zones.Remove(entity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public Zone GetZone(string id)
+        public async Task<Zone> GetZone(string id)
         {
-            return _context.Zones.FirstOrDefault(t => t.IdZone == id);
+            return await _context.Zones.FirstOrDefaultAsync(t => t.IdZone == id);
         }
 
-        public List<Zone> GetZones()
+        public async Task<List<Zone>> GetZones()
         {
-            return _context.Zones.ToList();
+            return await _context.Zones.ToListAsync();
         }
     }
 }

@@ -1,7 +1,9 @@
-﻿using Npgsql;
+﻿using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using ScootAPI.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ScootAPI.Repositories
 {
@@ -14,33 +16,33 @@ namespace ScootAPI.Repositories
             _context = context;
         }
 
-        public Scooter GetScooter(string id)
+        public async Task<Scooter> GetScooter(string id)
         {
-            return _context.Scooters.FirstOrDefault(t => t.IdScooter == id);
+            return await _context.Scooters.FirstOrDefaultAsync(t => t.IdScooter == id);
         }
 
-        public void UpdateScooter(Scooter scooter)
+        public async Task UpdateScooter(Scooter scooter)
         {
             _context.Scooters.Update(scooter);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteScooter(string id)
+        public async Task DeleteScooterAsync(string id)
         {
             var entity = _context.Scooters.FirstOrDefault(t => t.IdScooter == id);
             _context.Scooters.Remove(entity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void AddScooter(Scooter scooter)
+        public async Task AddScooterAsync(Scooter scooter)
         {
             _context.Scooters.Add(scooter);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public List<Scooter> GetScooters()
+        public async Task<List<Scooter>> GetScooters()
         {
-            return _context.Scooters.ToList();
+            return await _context.Scooters.ToListAsync();
         }
     }
 }

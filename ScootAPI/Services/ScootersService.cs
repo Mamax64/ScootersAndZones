@@ -2,6 +2,7 @@
 using ScootAPI.Repositories;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ScootAPI.Services
 {
@@ -13,29 +14,29 @@ namespace ScootAPI.Services
             _scooterRepository = scooterRepository;
         }
 
-        public Scooter GetScooter(string id)
+        public async Task<Scooter> GetScooter(string id)
         {
-            return _scooterRepository.GetScooter(id);
+            return await _scooterRepository.GetScooter(id);
         }
 
-        public void UpdateScooter(Scooter scooter)
+        public async Task UpdateScooter(Scooter scooter)
         {
-            _scooterRepository.UpdateScooter(scooter);
+            await _scooterRepository.UpdateScooter(scooter);
         }
 
-        public void DeleteScooter(string id)
+        public async Task DeleteScooter(string id)
         {
-            _scooterRepository.DeleteScooter(id);
+            await _scooterRepository.DeleteScooterAsync(id);
         }
 
-        public void AddScooter(Scooter scooter)
+        public async Task AddScooter(Scooter scooter)
         {
-            _scooterRepository.AddScooter(scooter);
+            await _scooterRepository.AddScooterAsync(scooter);
         }
 
-        public List<Scooter> GetScooters()
+        public async Task<List<Scooter>> GetScooters()
         {
-            return _scooterRepository.GetScooters();
+            return await _scooterRepository.GetScooters();
         }
     }
 }

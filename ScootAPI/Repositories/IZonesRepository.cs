@@ -8,14 +8,14 @@ namespace ScootAPI.Repositories
 {
     public interface IZonesRepository
     {
-        void AddZone(Zone zone);
+        Task AddZone(Zone zone);
 
-        void UpdateZone(Zone zone);
+        Task UpdateZone(Zone zone);
 
-        void DeleteZone(string id);
+        Task DeleteZone(string id);
 
-        Zone GetZone(string id);
+        Task<Zone> GetZone(string id);
 
-        List<Zone> GetZones();
+        Task<List<Zone>> GetZones();
     }
 }

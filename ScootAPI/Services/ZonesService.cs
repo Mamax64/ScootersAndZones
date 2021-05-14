@@ -2,6 +2,7 @@
 using ScootAPI.Repositories;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ScootAPI.Services
 {
@@ -19,34 +20,34 @@ namespace ScootAPI.Services
         {
             List<Scooter> filteredScooters = new();
 
-            filteredScooters = _scootersRepository.GetScooters().Where(s => s.IdZone == id).ToList();
+            filteredScooters = _scootersRepository.GetScooters().Result.Where(s => s.IdZone == id).ToList();
 
             return filteredScooters;
         }
 
-        public void AddZone(Zone zone)
+        public async Task AddZone(Zone zone)
         {
-            _zonesRepository.AddZone(zone);
+            await _zonesRepository.AddZone(zone);
         }
 
-        public void UpdateZone(Zone zone)
+        public async Task UpdateZone(Zone zone)
         {
-            _zonesRepository.UpdateZone(zone);
+            await _zonesRepository.UpdateZone(zone);
         }
 
-        public void DeleteZone(string id)
+        public async Task DeleteZone(string id)
         {
-            _zonesRepository.DeleteZone(id);
+            await _zonesRepository.DeleteZone(id);
         }
 
-        public Zone GetZone(string id)
+        public async Task<Zone> GetZone(string id)
         {
-            return _zonesRepository.GetZone(id);
+            return await _zonesRepository.GetZone(id);
         }
 
-        public List<Zone> GetZones()
+        public async Task<List<Zone>> GetZones()
         {
-            return _zonesRepository.GetZones();
+            return await _zonesRepository.GetZones();
         }
     }
 }

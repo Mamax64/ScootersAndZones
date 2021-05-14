@@ -1,5 +1,6 @@
 ﻿using ScootAPI.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ScootAPI.Services
 {
@@ -7,14 +8,14 @@ namespace ScootAPI.Services
     {
         List<Scooter> GetScootersByZoneId(string id);
 
-        void AddZone(Zone zone);
+        Task AddZone(Zone zone);
 
-        void UpdateZone(Zone zone);
+        Task UpdateZone(Zone zone);
 
-        void DeleteZone(string id);
+        Task DeleteZone(string id);
 
-        Zone GetZone(string id);
+        Task<Zone> GetZone(string id);
 
-        List<Zone> GetZones();
+        Task<List<Zone>> GetZones();
     }
 }

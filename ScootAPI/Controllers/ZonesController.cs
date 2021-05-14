@@ -30,7 +30,7 @@ namespace ScootAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Zone> Get(string id)
+        public async Task<ActionResult<Zone>> GetAsync(string id)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace ScootAPI.Controllers
                     return cachedZone;
                 }
 
-                Zone zone = _zoneService.GetZone(id);
+                Zone zone = await _zoneService.GetZone(id);
 
                 if (zone == null) return NotFound();
 
@@ -58,7 +58,7 @@ namespace ScootAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Zone zone)
+        public async Task<IActionResult> CreateAsync([FromBody] Zone zone)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace ScootAPI.Controllers
                     string id = Guid.NewGuid().ToString();
                     zone.IdZone = id;
 
-                    _zoneService.AddZone(zone);
+                    await _zoneService.AddZone(zone);
 
                     _redisService.Set(KEY_PREFIX + id, zone);
 
@@ -84,14 +84,14 @@ namespace ScootAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Edit(string id, [FromBody] Zone zone)
+        public async Task<IActionResult> EditAsync(string id, [FromBody] Zone zone)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
                     zone.IdZone = id;
-                    _zoneService.UpdateZone(zone);
+                    await _zoneService.UpdateZone(zone);
 
                     _redisService.Set(KEY_PREFIX + id, zone);
 
@@ -117,6 +117,7 @@ namespace ScootAPI.Controllers
 
                 List<string> allScootersIds = _redisService.GetKeysByPattern("*Scooter:*");
                 List<Scooter> scootersInZone = new();
+                
                 foreach (string scooterKey in allScootersIds)
                 {
                     var scooter = _redisService.Get<Scooter>(scooterKey);
@@ -143,14 +144,14 @@ namespace ScootAPI.Controllers
                 return BadRequest(e);
             }
         }
-        
+
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> DeleteAsync(string id)
         {
-            Zone zone = _zoneService.GetZone(id);
+            Zone zone = await _zoneService.GetZone(id);
             if (zone == null) return NotFound();
 
-            _zoneService.DeleteZone(id);
+            await _zoneService.DeleteZone(id);
             _redisService.Delete(KEY_PREFIX + id);
 
             MessageEntity msg = new("ScootZone", id, "Delete");
@@ -159,11 +160,11 @@ namespace ScootAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Zone>> Get()
+        public async Task<ActionResult<IEnumerable<Zone>>> GetAsync()
         {
             try
             {
-                return _zoneService.GetZones();
+                return await _zoneService.GetZones();
             }
             catch (Exception e)
             {

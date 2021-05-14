@@ -1,14 +1,10 @@
 ﻿using Cache;
 using MessagingLib;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json;
 using ScootAPI.Models;
 using ScootAPI.Services;
-using StackExchange.Redis.Extensions.Core.Abstractions;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ScootAPI.Controllers
@@ -30,7 +26,7 @@ namespace ScootAPI.Controllers
 
 
         [HttpGet("{id}")]
-        public ActionResult<Scooter> Get(string id)
+        public async Task<ActionResult<Scooter>> GetAsync(string id)
         {
             try
             {
@@ -43,7 +39,7 @@ namespace ScootAPI.Controllers
                     return cachedScooter;
                 }
 
-                Scooter scooter = _scootersService.GetScooter(id);
+                Scooter scooter = await _scootersService.GetScooter(id);
 
                 if (scooter == null) return NotFound();
 
@@ -58,7 +54,7 @@ namespace ScootAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Scooter scooter)
+        public async Task<IActionResult> CreateAsync([FromBody] Scooter scooter)
         {
             try
             {
@@ -67,7 +63,7 @@ namespace ScootAPI.Controllers
                     string id = Guid.NewGuid().ToString();
                     scooter.IdScooter = id;
 
-                    _scootersService.AddScooter(scooter);
+                    await _scootersService.AddScooter(scooter);
 
                     _redisService.Set(KEY_PREFIX + id, scooter);
 
@@ -84,14 +80,14 @@ namespace ScootAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Edit(string id, [FromBody] Scooter scooter)
+        public async Task<IActionResult> EditAsync(string id, [FromBody] Scooter scooter)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
                     scooter.IdScooter = id;
-                    _scootersService.UpdateScooter(scooter);
+                    await _scootersService.UpdateScooter(scooter);
 
                     _redisService.Set(KEY_PREFIX + id, scooter);
 
@@ -108,11 +104,11 @@ namespace ScootAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> DeleteAsync(string id)
         {
             try
             {
-                Scooter scooter = _scootersService.GetScooter(id);
+                Scooter scooter = await _scootersService.GetScooter(id);
                 if (scooter == null) return NotFound();
 
                 _scootersService.DeleteScooter(id);
@@ -133,7 +129,7 @@ namespace ScootAPI.Controllers
         {
             try
             {
-                return _scootersService.GetScooters();
+                return await _scootersService.GetScooters();
             }
             catch (Exception e)
             {

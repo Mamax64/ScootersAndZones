@@ -19,20 +19,18 @@ namespace ScootAPI.Services
         {
             if(ConnectionExists())
             {
-                using (var channel = _connection.CreateModel())
-                {
-                    channel.QueueDeclare(queue: "scootapi",
-                                         durable: true,
-                                         exclusive: false,
-                                         autoDelete: false,
-                                         arguments: null);
+                using var channel = _connection.CreateModel();
+                channel.QueueDeclare(queue: "scootapi",
+                                     durable: true,
+                                     exclusive: false,
+                                     autoDelete: false,
+                                     arguments: null);
 
-                    var json = JsonConvert.SerializeObject(message);
+                var json = JsonConvert.SerializeObject(message);
 
-                    var body = Encoding.UTF8.GetBytes(json);
+                var body = Encoding.UTF8.GetBytes(json);
 
-                    channel.BasicPublish(exchange: "", routingKey: "scootapi", basicProperties: null, body: body);
-                }
+                channel.BasicPublish(exchange: "", routingKey: "scootapi", basicProperties: null, body: body);
             }
         }
 
